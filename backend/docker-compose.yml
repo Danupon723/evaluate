@@ -8,7 +8,7 @@ services:
       MYSQL_DATABASE: evaluation
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     ports:
-      - "3307:3306"
+      - "3309:3306"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
@@ -23,7 +23,7 @@ services:
       PMA_USER: root
       PMA_PASSWORD: root1234
     ports:
-      - "8080:80"
+      - "8082:80"
     depends_on:
       - db
 
@@ -54,7 +54,7 @@ services:
     environment:
       API_URL: http://backend:3000
     ports:
-      - "5173:5173"
+      - "5174:5173"
     volumes:
       - ./frontend:/app
       - /app/node_modules
