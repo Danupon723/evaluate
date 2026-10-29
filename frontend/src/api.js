@@ -5,3 +5,6 @@ export const state = reactive({
   user: JSON.parse(localStorage.getItem("user") || "null"),
   massege: "",
 });
+
+
+export const api = axios.create({baseURL})
