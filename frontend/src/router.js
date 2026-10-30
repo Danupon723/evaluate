@@ -1,31 +1,45 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { state } from "./api";
+import { state, logout } from "./api";
 
 const routes = [
+  { path: "/", redirect: "/login" },
   { path: "/login", component: () => import("./pages/loginPage.vue") },
-//   { path: "/password", component: () => import("./pages/passwordPage.vue") },
-//   { path: "/dashbord", component: () => import("./pages/dashboardPage.vue"), meta: { role: "admin" } },
-//   { path: "/self", component: () => import("./pages/selfPage.vue"), meta: { role: "evaluatee" } },
-//   { path: "/evaluate", component: () => import("./pages/evaluatePage.vue"), meta: { role: "evaluator" } },
+
+  //admin
+  {path:'/dashbord' , component:()=> import('./pages/DashbordPage.vue')},
+  {path:'/usres' , component:()=> import('./pages/UsersPage.vue')},
+  {path:'/periods' , component:()=> import('./pages/Preiods.vue')},
+  {path:'/assign' , component:()=> import('./pages/AssignPage.vue')},
+  {path:'/track' , component:() => import('./pages/TrackPage.vue')},
+  {path:'/backup' , component:() => import('./pages/BackupPage.vue')},
+
+  //evaluatee
+  {path:'/self' , component:() => import('./pages/SelfPage.vue')},
+  //evaluator
+  {path:'/evaluate' , component:() => import('./pages/EvalustePage.vue')}
 ];
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes,
-});
+const homes = { admin: "/dashbord", evaluatee: "/self", evaluator: "/evaluate" };
 
-export function homeOf(user) {
-  if (user.must_change_password) return "/password";
-  return { admin: "/dashbord", evaluatee: "/self", evaluator: "/evaluate" }[user.role];
-}
+export const homeOf = (user) =>
+  user.must_change_password ? "/password" : homes[user.role];
+
+const router = createRouter({ history: createWebHistory(), routes });
 
 router.beforeEach((to) => {
-  const user = state.user;
-  if (!user) return to.path === "/login" ? true : "/login";
+  const { user } = state;
+  const token = localStorage.getItem("token");
+
+  if (!user || !token) {
+    if (user || token) logout();
+    return to.path === "/login" || "/login";
+  }
+
+  const home = homeOf(user);
+  if (!home) return logout(), "/login";
+
   if (user.must_change_password && to.path !== "/password") return "/password";
-  if (to.path === "/login") return homeOf(user);
-  if (to.meta.role && to.meta.role !== user.role) return homeOf(user);
-  return true;
+  if (to.path === "/login" || (to.meta.role && to.meta.role !== user.role)) return home;
 });
 
 export default router;

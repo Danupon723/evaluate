@@ -1,51 +1,63 @@
 <template>
   <v-app>
     <v-app-bar color="primary">
-      <v-app-bar-nav-icon v-if="user" @click="drawer = !drawer" />
-      <v-app-bar-title>ระบบประเมินบุคลากร</v-app-bar-title>
-      <template v-if="user">
-        <span class="d-none d-sm-inline mr-2">{{ user.full_name }}</span>
-        <v-btn icon="mdi-logout" @click="logout(), $router.push('/login')" />
+      <v-app-bar-nav-icon v-if="state.user" @click="drawer = !drawer" />
+      <v-app-bar-title>ระบบประเมิน</v-app-bar-title>
+      <template v-if="state.user">
+        <span class="d-none d-sm-inline mr-2">{{ state.user.full_name }}</span>
+        <v-btn icon="mdi-logout" @click="signout" />
       </template>
     </v-app-bar>
 
-    <v-navigation-drawer v-if="user && !user.must_change_password" v-model="drawer">
-      <v-list nav :items="items" />
+    <v-navigation-drawer
+      v-if="state.user && !state.user.must_change_password"
+      v-model="drawer"
+    >
+      <v-list nav>
+        <v-list-item
+          v-for="m in menus[state.user.role]"
+          :key="m.to"
+          :to="m.to"
+          :prepend-icon="m.icon"
+          :title="m.title"
+        />
+        <v-divider />
+        <v-list-item to="/profile" prepend-icon="mdi-account" title="ข้อมูลส่วนตัว" />
+        <v-list-item to="/password" prepend-icon="mdi-key" title="เปลี่ยนรหัสผ่าน" />
+      </v-list>
     </v-navigation-drawer>
 
-    <v-main><v-container><router-view /></v-container></v-main>
-
-    <v-snackbar :model-value="!!state.message" :text="state.message" @update:model-value="state.message = ''" />
+    <v-main>
+      <v-container>
+        <router-view />
+      </v-container>
+    </v-main>
   </v-app>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { state, logout } from './api';
+import { ref } from "vue";
+import { state, logout } from "./api";
+import { useRouter } from "vue-router";
 
-const drawer = ref(null);
-const user = computed(() => state.user);
+const router = useRouter();
+const drawer = ref(true);
 
 const menus = {
   admin: [
-    ['/dashboard', 'view-dashboard', 'Dashboard'],
-    ['/users', 'account-group', 'ผู้ใช้งาน'],
-    ['/periods', 'calendar', 'รอบและตัวชี้วัด'],
-    ['/assign', 'account-tie', 'มอบหมายกรรมการ'],
-    ['/track', 'chart-box', 'ติดตามและรายงาน'],
-    ['/backup', 'database', 'สำรอง/กู้คืนข้อมูล'],
+    { to: "/dashbord", icon: "mdi-view-dashboard", title: "Dashboard" },
+    { to: "/users", icon: "mdi-account-group", title: "ผู้ใช้งาน" },
+    { to: "/periods", icon: "mdi-calendar", title: "รอบและตัวชี้วัด" },
+    { to: "/assign", icon: "mdi-account-tie", title: "มอบหมายกรรมการ" },
+    { to: "/track", icon: "mdi-chart-box", title: "ติดตามและรายงาน" },
+    { to: "/backup", icon: "mdi-database", title: "สำรอง/กู้คืนข้อมูล" },
   ],
-  evaluatee: [['/self', 'clipboard-edit', 'ประเมินตนเอง']],
-  evaluator: [['/evaluate', 'clipboard-check', 'รายชื่อที่ต้องประเมิน']],
+  evaluatee: [{ to: "/self", icon: "mdi-account-check", title: "ประเมินตัวเอง" }],
+  evaluator: [{ to: "/evaluate", icon: "mdi-clipboard-check", title: "รายชื่อที่ต้องประเมิน" }],
 };
-const common = [
-  ['/profile', 'account', 'ข้อมูลส่วนตัว'],
-  ['/password', 'key', 'เปลี่ยนรหัสผ่าน'],
-];
 
-const items = computed(() =>
-  [...(menus[user.value?.role] || []), ...common].map(([to, icon, title]) => ({
-    to, title, prependIcon: `mdi-${icon}`,
-  }))
-);
+function signout() {
+  logout();
+  router.push("/login");
+}
 </script>
