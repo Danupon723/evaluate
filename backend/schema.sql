@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
   must_change_password BOOLEAN NOT NULL DEFAULT TRUE
 );
 
--- 2) รอบการประเมิน มีวันเปิด-ปิด
+-- 2) รอบการประเมิน มีวันเปิด-ปิด 
 CREATE TABLE IF NOT EXISTS periods (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,

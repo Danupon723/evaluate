@@ -16,7 +16,7 @@ const routes = [
   //evaluatee
   {path:'/self' , component:() => import('./pages/SelfPage.vue')},
   //evaluator
-  {path:'/evaluate' , component:() => import('./pages/EvalustePage.vue')}
+  {path:'/evaluate' , component:() => import('./pages/EvalustePage.vue')},
 ];
 
 const homes = { admin: "/dashbord", evaluatee: "/self", evaluator: "/evaluate" };

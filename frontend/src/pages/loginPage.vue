@@ -20,11 +20,12 @@ const username = ref("");
 const password = ref("");
 
 async function login() {
-  const { data } = await api.post("/auth/login", {
+  const res = await api.post("/auth/login", {
     username: username.value,
     password: password.value,
   });
-  saveLogin(data.token, data.user);
-  router.push(homeOf(data.user));
+  const { token, user } = res.data.data;
+  saveLogin(token, user);
+  router.push(homeOf(user));
 }
 </script>

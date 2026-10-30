@@ -21,14 +21,15 @@ services:
       PMA_USER: root
       PMA_PASSWORD: root1234
     ports:
-      - "8081:80"          # ⬅️ เปลี่ยนจาก 8080/8082 เป็น 8081 (หรือเลขที่ว่าง)
+      - "8081:80"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   backend:
     image: node:24-alpine
     working_dir: /app
-    command: sh -c "npm install && npm run dev"   # ⬅️ เอา seed ออก (รันมือครั้งแรก)
+    command: sh -c "npm install && npm run dev"
     environment:
       DB_HOST: db
       DB_USER: root
@@ -49,6 +50,8 @@ services:
     image: node:24-alpine
     working_dir: /app
     command: sh -c "npm install && npm run dev"
+    environment:
+      API_URL: http://backend:3000
     ports:
       - "5174:5173"
     volumes:
